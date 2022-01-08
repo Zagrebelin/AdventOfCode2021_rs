@@ -2,7 +2,6 @@ use crate::common;
 use std::borrow::Borrow;
 use std::cmp::Ordering;
 
-const LENGTH: usize = 12;
 const FILENAME: &str = "inputs/03a.txt";
 const ZERO: char = '0';
 const ONE: char = '1';
@@ -10,14 +9,15 @@ const ONE: char = '1';
 #[allow(dead_code)]
 pub fn solve_a() -> i32 {
     let numbers = read_file();
+    let length = numbers.first().expect("").len();
     let mut gamma = 0;
     let mut epsilon = 0;
-    for pos in 0..LENGTH {
+    for pos in 0..length {
         let (zeroes, ones) = count_ones_zeroes(&numbers, pos);
         if ones > zeroes {
-            gamma += 1 << (LENGTH - pos - 1);
+            gamma += 1 << (length - pos - 1);
         } else {
-            epsilon += 1 << (LENGTH - pos - 1);
+            epsilon += 1 << (length - pos - 1);
         }
     }
     gamma * epsilon
@@ -27,9 +27,10 @@ pub fn solve_a() -> i32 {
 pub fn solve_b() -> i32 {
     let numbers = read_file();
 
+    let length = numbers.first().expect("").len();
     // oxygen generator - most common
     let mut slice = numbers.clone();
-    for position in 0..LENGTH {
+    for position in 0..length {
         let (zeroes, ones) = count_ones_zeroes(&slice, position);
         let x = match zeroes.cmp(&ones) {
             Ordering::Less | Ordering::Equal => ONE,
@@ -44,7 +45,7 @@ pub fn solve_b() -> i32 {
 
     // co2 generator - less common
     slice = numbers.clone();
-    for position in 0..LENGTH {
+    for position in 0..length {
         let (zeroes, ones) = count_ones_zeroes(&slice, position);
         let x = match zeroes.cmp(&ones) {
             Ordering::Less | Ordering::Equal => ZERO,
