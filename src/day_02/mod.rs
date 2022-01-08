@@ -1,6 +1,7 @@
 use crate::common;
 
-pub fn solve_a() {
+#[allow(dead_code)]
+pub fn solve_a() -> i32 {
     let mut position = 0;
     let mut depth = 0;
     let lines = common::read_lines("inputs/02a.txt").expect("Error reading input file");
@@ -22,10 +23,11 @@ pub fn solve_a() {
             }
         }
     }
-    println!("1: {}", position * depth);
+    return position * depth;
 }
 
-pub fn solve_b() {
+#[allow(dead_code)]
+pub fn solve_b() -> i32 {
     let mut position = 0;
     let mut depth = 0;
     let mut aim = 0;
@@ -49,5 +51,5 @@ pub fn solve_b() {
             }
         }
     }
-    println!("2: {}", position * depth);
+    return position * depth;
 }
