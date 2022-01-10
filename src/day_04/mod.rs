@@ -1,7 +1,7 @@
 // sample A = 4512
 // sample B = 1924
 // real A = 63424
-// real B = 10992 .. ...
+// real B = 23541
 
 /*
 Игра "Бинго"
@@ -16,7 +16,7 @@ use crate::common;
 use std::fs::File;
 use std::io::{BufReader, Lines};
 
-const FILENAME: &str = "inputs/04_test.txt";
+const FILENAME: &str = "inputs/04.txt";
 const SIZE: usize = 5;
 
 struct Board {
@@ -88,22 +88,20 @@ pub fn solve_b() -> i32 {
     /* найти последнего победителя */
     let (steps, mut boards) = read_data();
 
-    let mut may_by_last_winner: Option<&Board> = None;
+    // let mut may_by_last_winner: Option<&Board> = None;
     for step in steps {
         boards.iter_mut().for_each(|board| board.do_step(step));
-        // вектор не победителей. Если он там только один, то запоминаем его как
-        // последнего победителя
-        let losers: Vec<&Board> = boards.iter().filter(|b| !b.is_winner()).collect();
-        if losers.len() == 1 {
-            may_by_last_winner = Some(losers[0]);
+        if boards.len() == 1 && boards[0].is_winner() {
+            return boards[0].score(step);
         }
-        if let Some(last_winner) = may_by_last_winner {
-            if last_winner.is_winner() {
-                return last_winner.score(step);
+        let mut b2: Vec<Board> = Vec::new();
+        for board in boards {
+            if !board.is_winner() {
+                b2.push(board)
             }
         }
+        boards = b2;
     }
-
     -1
 }
 fn read_data() -> (Vec<i8>, Vec<Board>) {
