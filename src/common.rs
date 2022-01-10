@@ -10,3 +10,11 @@ where
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
 }
+
+pub fn read_lines2<P>(filename: P) -> io::Lines<io::BufReader<File>>
+where
+    P: AsRef<Path>,
+{
+    let file = File::open(filename).expect("Cant open file");
+    io::BufReader::new(file).lines()
+}
