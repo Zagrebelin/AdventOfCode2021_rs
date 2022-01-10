@@ -3,6 +3,15 @@
 // real A = 63424
 // real B = 10992 .. ...
 
+/*
+Игра "Бинго"
+
+    Есть набор досок (Board)
+    есть набор ходов (steps)
+    ходы применяются к доскам (do_step)
+    доска может быть выигравшей (is_winner)
+ */
+
 use crate::common;
 use std::fs::File;
 use std::io::{BufReader, Lines};
@@ -57,8 +66,43 @@ impl Board {
 }
 
 pub fn solve_a() -> i32 {
+    /* найти первого победителя */
+    let (steps, mut boards) = read_data();
+
+    for step in steps {
+        for board in boards.iter_mut() {
+            board.do_step(step);
+            if board.is_winner() {
+                return board.score(step as i32);
+            }
+        }
+    }
+
+    0
+}
+
+pub fn solve_b() -> i32 {
+    /* найти последнего победителя */
+    let (steps, mut boards) = read_data();
+
+    let mut last_looser: Option<&Board>;
+    for step in steps {
+        boards.iter_mut().for_each(|board| board.do_step(step));
+        let losers: Vec<&Board> = boards.iter().filter(|b| !b.is_winner()).collect();
+        if losers.len() == 1 {
+            last_looser = Some(losers[0]);
+        }
+        if last_looser.is_some() && last_looser.unwrap().is_winner() {
+            return last_looser.unwrap().score(step as i32);
+        }
+        println!("{}", losers.len());
+    }
+
+    0
+}
+fn read_data() -> (Vec<i8>, Vec<Board>) {
     let mut lines = common::read_lines2(FILENAME);
-    // moves - first line splitted by comma
+
     let steps: Vec<i8> = lines
         .nth(0)
         .unwrap()
@@ -76,56 +120,7 @@ pub fn solve_a() -> i32 {
             None => break,
         }
     }
-
-    for step in steps {
-        for board in boards.iter_mut() {
-            board.do_step(step);
-            if board.is_winner() {
-                return board.score(step as i32);
-            }
-        }
-    }
-
-    0
-}
-pub fn solve_b() -> i32 {
-    let mut lines = common::read_lines2(FILENAME);
-    let mut boards_count = 0;
-    // moves - first line splitted by comma
-    let steps: Vec<i8> = lines
-        .nth(0)
-        .unwrap()
-        .ok()
-        .unwrap()
-        .split(',')
-        .map(|part| part.parse().ok().unwrap())
-        .collect();
-    let mut boards: Vec<Board> = Vec::new();
-    loop {
-        let may_be_board = read_board(&mut lines);
-        match may_be_board {
-            Some(board) => {
-                boards.push(board);
-                boards_count += 1
-            }
-            None => break,
-        }
-    }
-
-    let mut last_looser: Option<&Board>;
-    for step in steps {
-        boards.iter_mut().for_each(|board| board.do_step(step));
-        let losers: Vec<&Board> = boards.iter().filter(|b| !b.is_winner()).collect();
-        if losers.len() == 1 {
-            last_looser = Some(losers[0]);
-        }
-        if last_looser.is_some() && last_looser.unwrap().is_winner() {
-            return last_looser.unwrap().score(step as i32);
-        }
-        println!("{}", losers.len());
-    }
-
-    0
+    (steps, boards)
 }
 
 fn read_board(lines: &mut Lines<BufReader<File>>) -> Option<Board> {
