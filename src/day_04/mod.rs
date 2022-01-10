@@ -50,8 +50,8 @@ impl Board {
         false
     }
 
-    pub fn score(&self, last_step: i32) -> i32 {
-        self.sum_unmarked() * last_step
+    pub fn score(&self, last_step: i8) -> i32 {
+        self.sum_unmarked() * (last_step as i32)
     }
 
     fn sum_unmarked(&self) -> i32 {
@@ -70,35 +70,37 @@ pub fn solve_a() -> i32 {
     let (steps, mut boards) = read_data();
 
     for step in steps {
-        for board in boards.iter_mut() {
-            board.do_step(step);
-            if board.is_winner() {
-                return board.score(step as i32);
-            }
+        boards.iter_mut().for_each(|board| board.do_step(step));
+        let may_be_winner = boards.iter().filter(|board| board.is_winner()).nth(0);
+        if let Some(winner) = may_be_winner {
+            return winner.score(step);
         }
     }
 
-    0
+    -1
 }
 
 pub fn solve_b() -> i32 {
     /* найти последнего победителя */
     let (steps, mut boards) = read_data();
 
-    let mut last_looser: Option<&Board>;
+    let mut may_by_last_winner: Option<&Board> = None;
     for step in steps {
         boards.iter_mut().for_each(|board| board.do_step(step));
+        // вектор не победителей. Если он там только один, то запоминаем его как
+        // последнего победителя
         let losers: Vec<&Board> = boards.iter().filter(|b| !b.is_winner()).collect();
         if losers.len() == 1 {
-            last_looser = Some(losers[0]);
+            may_by_last_winner = Some(losers[0]);
         }
-        if last_looser.is_some() && last_looser.unwrap().is_winner() {
-            return last_looser.unwrap().score(step as i32);
+        if let Some(last_winner) = may_by_last_winner {
+            if last_winner.is_winner() {
+                return last_winner.score(step);
+            }
         }
-        println!("{}", losers.len());
     }
 
-    0
+    -1
 }
 fn read_data() -> (Vec<i8>, Vec<Board>) {
     let mut lines = common::read_lines2(FILENAME);
