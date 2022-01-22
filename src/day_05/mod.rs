@@ -56,15 +56,17 @@ impl FromStr for Line {
 
 impl Line {
     fn points(&self, with_diag: bool) -> Vec<[i32; 2]> {
-        let mut start: &Point;
-        let mut step_x: i32 = 1;
-        let mut step_y: i32 = 1;
+        let start: &Point;
+        let step_x: i32;
+        let step_y: i32;
 
         if self.a.x == self.b.x {
             start = self.top_point();
             step_x = 0;
+            step_y = 1;
         } else {
             start = self.left_point();
+            step_x = 1;
             step_y = match start.y.cmp(&self.right_point().y) {
                 Ordering::Less => 1,
                 Ordering::Equal => 0,
