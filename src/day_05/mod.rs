@@ -4,14 +4,11 @@
 // real B = 19258
 use std::cmp::{max, min, Ordering};
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufReader, Lines};
+use std::str::FromStr;
 
 use crate::common;
-use std::fs::File;
-use std::hash::Hash;
-use std::io::{BufReader, Lines};
-use std::iter::Map;
-use std::str::FromStr;
-use std::thread::yield_now;
 
 const FILENAME: &str = "inputs/05.txt";
 
@@ -59,41 +56,51 @@ impl FromStr for Line {
 
 impl Line {
     fn points(&self, with_diag: bool) -> Vec<[i32; 2]> {
-        let mut points: Vec<[i32; 2]> = Vec::new();
-        if self.a.x == self.b.x {
-            // особый случай - вертикальная палка
-            let top = match self.a.above_than(&self.b) {
-                true => &self.a,
-                false => &self.b,
-            };
+        let mut start: &Point;
+        let mut step_x: i32 = 1;
+        let mut step_y: i32 = 1;
 
-            for y in 0..self.length() + 1 {
-                points.push([self.a.x, top.y + y])
-            }
+        if self.a.x == self.b.x {
+            start = self.top_point();
+            step_x = 0;
         } else {
-            // горизонтальная или наклонная линия
-            let mut left: &Point;
-            let mut right: &Point;
-            if self.a.left_than(&self.b) {
-                left = &self.a;
-                right = &self.b;
-            } else {
-                left = &self.b;
-                right = &self.a;
-            }
-            let slope = match left.y.cmp(&right.y) {
+            start = self.left_point();
+            step_y = match start.y.cmp(&self.right_point().y) {
                 Ordering::Less => 1,
                 Ordering::Equal => 0,
                 Ordering::Greater => -1,
             };
-            if with_diag || slope == 0 {
-                for i in 0..self.length() + 1 {
-                    points.push([left.x + i, left.y + slope * i]);
-                }
-            }
         }
 
+        let is_straight = (step_x == 0) ^ (step_y == 0);
+
+        let points = match with_diag || is_straight {
+            true => (0..self.length() + 1)
+                .map(|i| [start.x + step_x * i, start.y + step_y * i])
+                .collect(),
+            false => vec![],
+        };
+
         points
+    }
+
+    fn left_point(&self) -> &Point {
+        match self.a.left_than(&self.b) {
+            true => &self.a,
+            false => &self.b,
+        }
+    }
+    fn right_point(&self) -> &Point {
+        match self.a.left_than(&self.b) {
+            true => &self.b,
+            false => &self.a,
+        }
+    }
+    fn top_point(&self) -> &Point {
+        match self.a.above_than(&self.b) {
+            true => &self.a,
+            false => &self.b,
+        }
     }
 
     fn length(&self) -> i32 {
