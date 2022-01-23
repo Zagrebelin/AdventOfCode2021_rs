@@ -2,10 +2,8 @@
 // sample B = 12
 // real A = 6841
 // real B = 19258
-use std::cmp::{max, min, Ordering};
+use std::cmp::{max, Ordering};
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader, Lines};
 use std::str::FromStr;
 
 use crate::common;
@@ -158,7 +156,7 @@ fn save(field: &HashMap<[i32; 2], i32>, fname: &str) {
 }
 
 fn read_data() -> Vec<Line> {
-    let mut lines = common::read_lines2(FILENAME);
+    let lines = common::read_lines2(FILENAME);
     let steps: Vec<Line> = lines
         .map(|line| Line::from_str(line.unwrap().as_str()).expect("Line"))
         .into_iter()
