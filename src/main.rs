@@ -8,6 +8,6 @@ mod day_06;
 
 fn main() {
     // day_01::solve();
-    println!("1: {}", day_06::solve_a());
-    println!("2: {}", day_06::solve_b());
+    println!("1: {}", day_05::solve_a());
+    println!("2: {}", day_05::solve_b());
 }

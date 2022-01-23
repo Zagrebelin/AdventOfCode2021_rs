@@ -111,14 +111,14 @@ impl Line {
 }
 
 pub fn solve_a() -> i32 {
-    solve(false)
+    solve(false, "outputs/05_a.png")
 }
 
 pub fn solve_b() -> i32 {
-    solve(true)
+    solve(true, "outputs/05_b.png")
 }
 
-fn solve(with_diag: bool) -> i32 {
+fn solve(with_diag: bool, fname: &str) -> i32 {
     let lines = read_data();
     let mut field: HashMap<[i32; 2], i32> = HashMap::new();
     for line in lines.iter() {
@@ -130,8 +130,31 @@ fn solve(with_diag: bool) -> i32 {
             field.insert(point, old + 1);
         }
     }
-    let counter = field.values().into_iter().filter(|v| **v >= 2).count();
-    counter as i32
+    // let counter = field.values().into_iter().filter(|v| **v >= 2).count();
+    let counter = field.values().into_iter().max().unwrap();
+    save(&field, fname);
+
+    *counter as i32
+}
+
+fn save(field: &HashMap<[i32; 2], i32>, fname: &str) {
+    //! An example of generating julia fractals.
+    let imgx = field.iter().map(|key| key.0[0]).max().unwrap() as u32;
+    let imgy = field.iter().map(|key| key.0[1]).max().unwrap() as u32;
+
+    // Create a new ImgBuf with width: imgx and height: imgy
+    let mut imgbuf = image::ImageBuffer::new(imgx, imgy);
+
+    // Iterate over the coordinates and pixels of the image
+    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
+        *pixel = match field.get(&[x as i32, y as i32]) {
+            None => image::Rgb([0, 0, 0]),
+            Some(_) => image::Rgb([150u8, 150u8, 150u8]),
+        };
+    }
+
+    // Save the image as “fractal.png”, the format is deduced from the path
+    imgbuf.save(fname).expect("Save inmage");
 }
 
 fn read_data() -> Vec<Line> {
