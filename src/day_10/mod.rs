@@ -16,6 +16,10 @@ enum StringType {
 }
 
 pub fn solve_a() -> u32 {
+    ///
+    /// найти несоотвествия парных скобок в строке [[[({})]]]
+    /// и посчитать сумму неправильных символов
+    ///
     let lines = read_data();
     let mut ret = 0;
     for line in lines {
@@ -34,6 +38,11 @@ pub fn solve_a() -> u32 {
 }
 
 pub fn solve_b() -> u64 {
+    ///
+    /// найти строки с незаконченными скобками [[[()]
+    /// посчитать сумму незаконченных символов
+    /// найти медиану сумм
+    ///
     let lines = read_data();
     let mut scores: Vec<u64> = Vec::new();
 
@@ -48,7 +57,6 @@ pub fn solve_b() -> u64 {
 }
 
 fn parse_line(line: &String) -> StringType {
-    let chars: Vec<char> = line.chars().collect();
     let mut st: VecDeque<char> = VecDeque::new();
     let pairs: HashMap<char, char> = hashmap![
         '[' => ']',
@@ -57,16 +65,15 @@ fn parse_line(line: &String) -> StringType {
         '{' => '}'
     ];
 
-    for c in cs.iter() {
-        match *c {
+    for c in line.chars() {
+        match c {
             '[' | '(' | '{' | '<' => {
-                st.push_back(*c);
+                st.push_back(c);
             }
             ']' | ')' | '}' | '>' => {
                 let from_st = st.pop_back().unwrap();
-                if pairs.get(&from_st).unwrap() != c {
-                    st.push_back(*c);
-                    return StringType::Invalid(*c);
+                if *pairs.get(&from_st).unwrap() != c {
+                    return StringType::Invalid(c);
                 }
             }
             _ => {}
